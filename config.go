@@ -37,15 +37,18 @@ func getConfig() config {
 		c.homeDir = h
 	}
 
-	// Kubernetes configuration
-	if h := c.homeDir; h != "" {
-		c.kubeConfig = flag.String("kubeconfig", filepath.Join(h, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	if configFilepath := os.Getenv("KUBECONFIG"); configFilepath == "" {
+		if h := c.homeDir; h != "" {
+			c.kubeConfig = flag.String("kubeconfig", filepath.Join(h, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		} else {
+			c.kubeConfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		}
 	} else {
-		c.kubeConfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		c.kubeConfig = flag.String("kubeconfig", configFilepath, "(optional) absolute path to the kubeconfig file")
 	}
 
 	// Refreshing frequency
-	flag.IntVar(&c.frequency, "frequency", 3, "refreshing frequency in seconds (default: 5)")
+	flag.IntVar(&c.frequency, "frequency", 3, "refreshing frequency in seconds (default: 3)")
 
 	// CLI Asks
 	flag.BoolVar(&c.askVersion, "version", false, "get Pody version")
